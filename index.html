@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Football Draft Board 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        .table-container { overflow-y: auto; height: 65vh; }
+        .table-container thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: #1f2937; /* bg-gray-800 */
+            border-bottom: 1px solid #374151; /* border-gray-700 */
+        }
+        .highlight-pick { background-color: #2563eb30; }
+        .highlight-pick:hover { background-color: #2563eb50; }
+        .roster-slot {
+            display: flex;
+            align-items: center;
+            padding: 6px 8px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            background-color: #374151; /* bg-gray-700 */
+        }
+        .roster-slot.empty {
+            background-color: #1f2937; /* bg-gray-800 */
+            border: 1px dashed #4b5563; /* border-gray-600 */
+        }
+        .roster-pos {
+            font-weight: 600;
+            color: #9ca3af; /* text-gray-400 */
+            width: 40px;
+        }
+        .roster-player-name {
+            font-weight: 500;
+            color: #e5e7eb; /* text-gray-200 */
+        }
+        .rookie-badge {
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #10b981; /* emerald-500 */
+            border: 1px solid #10b981;
+            border-radius: 4px;
+            padding: 1px 4px;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 p-4 sm:p-6 lg:p-8">
+
+    <div class="max-w-screen-xl mx-auto">
+        <!-- Header Section -->
+        <header class="text-center mb-6">
+            <h1 class="text-4xl font-bold text-white tracking-tight">Fantasy Football Draft 2025</h1>
+            <p class="text-gray-400 mt-2">Live Draft Board & Team Manager</p>
+        </header>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Left & Center Column: Draft Board -->
+            <div class="lg:col-span-2">
+                <!-- Draft Setup Module -->
+                <div class="bg-gray-800 p-4 rounded-lg shadow-2xl mb-6">
+                    <h3 class="text-xl font-semibold mb-3 text-white">Draft Strategy</h3>
+                    <div class="flex flex-col sm:flex-row items-center gap-4">
+                        <div class="flex-1 w-full">
+                            <label for="numTeams" class="block text-sm font-medium text-gray-300">Teams in League</label>
+                            <input type="number" id="numTeams" value="12" class="mt-1 w-full bg-gray-700 text-white border-gray-600 rounded-md px-3 py-2 focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div class="flex-1 w-full">
+                            <label for="myPick" class="block text-sm font-medium text-gray-300">My Draft Pick</label>
+                            <input type="number" id="myPick" value="5" class="mt-1 w-full bg-gray-700 text-white border-gray-600 rounded-md px-3 py-2 focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto self-end">
+                           <button id="calculateButton" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md transition duration-200 h-10">See Top Available</button>
+                           <button id="generateTeamButton" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition duration-200 h-10">Generate Team</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Available Players Module -->
+                <div class="bg-gray-800 p-4 rounded-lg shadow-2xl">
+                    <div class="flex flex-col sm:flex-row justify-between items-center mb-4">
+                         <h2 class="text-2xl font-semibold text-white">Available Players</h2>
+                         <button id="resetButton" class="mt-2 sm:mt-0 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md transition duration-200">Reset Draft</button>
+                    </div>
+                    <input type="text" id="searchInput" placeholder="Search by name, team, position, or 'flex'..." class="w-full bg-gray-700 text-white placeholder-gray-400 border border-gray-600 rounded-md px-4 py-2 mb-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    
+                    <div class="table-container border border-gray-700 rounded-lg">
+                        <table class="w-full text-sm text-left text-gray-300">
+                            <thead class="text-xs text-gray-300 uppercase">
+                                <tr>
+                                    <th scope="col" class="px-2 py-3 cursor-pointer" data-sort="rank">Rk</th>
+                                    <th scope="col" class="px-4 py-3 cursor-pointer" data-sort="name">Player</th>
+                                    <th scope="col" class="px-2 py-3 cursor-pointer" data-sort="position">Pos</th>
+                                    <th scope="col" class="px-2 py-3 cursor-pointer" data-sort="bye">Bye</th>
+                                    <th scope="col" class="px-4 py-3 cursor-pointer" data-sort="lastYearPPR">2024 PPR Avg</th>
+                                    <th scope="col" class="px-4 py-3 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="players-tbody">
+                                <!-- Player rows dynamically inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: My Team & Strategy -->
+            <div class="space-y-6">
+                 <div class="bg-gray-800 p-4 rounded-lg shadow-2xl h-fit">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-semibold text-white">Scoring Big TD's 🏈🏈</h2>
+                    </div>
+                    <div id="my-team-list" class="space-y-2">
+                        <!-- Roster will be built by JS -->
+                    </div>
+                    <div id="email-section" class="mt-6 text-center hidden">
+                        <button id="emailRosterButton" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-200">Email Roster</button>
+                        <p class="text-xs text-gray-500 mt-2">Send to Coach and GM</p>
+                    </div>
+                </div>
+                <div id="roster-grade-container" class="bg-gray-800 p-4 rounded-lg shadow-2xl h-fit hidden">
+                    <h3 class="text-xl font-semibold mb-3 text-white">Roster Analysis</h3>
+                    <div id="roster-grade-details" class="text-center">
+                        <!-- Grade and projections will appear here -->
+                    </div>
+                </div>
+                <div id="strategy-results-container" class="bg-gray-800 p-4 rounded-lg shadow-2xl h-fit hidden">
+                    <h3 class="text-xl font-semibold mb-3 text-white">Projected Best Available</h3>
+                    <div id="strategy-results-list">
+                        <!-- Projected players will appear here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // --- DATA INITIALIZATION ---
+    const initialPlayers = [
+        { rank: 1, name: "Ja'Marr Chase", team: "CIN", position: "WR", bye: 10, lastYearPPR: 23.7, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/cin.png", isRookie: false },
+        { rank: 2, name: "Bijan Robinson", team: "ATL", position: "RB", bye: 5, lastYearPPR: 17.5, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/atl.png", isRookie: false },
+        { rank: 3, name: "Saquon Barkley", team: "PHI", position: "RB", bye: 9, lastYearPPR: 22.2, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/phi.png", isRookie: false },
+        { rank: 4, name: "Justin Jefferson", team: "MIN", position: "WR", bye: 6, lastYearPPR: 18.7, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/min.png", isRookie: false },
+        { rank: 5, name: "CeeDee Lamb", team: "DAL", position: "WR", bye: 10, lastYearPPR: 17.6, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/dal.png", isRookie: false },
+        { rank: 6, name: "Jahmyr Gibbs", team: "DET", position: "RB", bye: 8, lastYearPPR: 21.4, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/det.png", isRookie: false },
+        { rank: 7, name: "Derrick Henry", team: "BAL", position: "RB", bye: 7, lastYearPPR: 18.6, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/bal.png", isRookie: false },
+        { rank: 8, name: "Nico Collins", team: "HOU", position: "WR", bye: 6, lastYearPPR: 17.6, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/hou.png", isRookie: false },
+        { rank: 9, name: "Puka Nacua", team: "LAR", position: "WR", bye: 8, lastYearPPR: 18.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/lar.png", isRookie: false },
+        { rank: 10, name: "Malik Nabers", team: "NYG", position: "WR", bye: 14, lastYearPPR: 18.2, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png", isRookie: false },
+        { rank: 11, name: "Brian Thomas Jr.", team: "JAC", position: "WR", bye: 8, lastYearPPR: 16.7, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/jax.png", isRookie: false },
+        { rank: 12, name: "Amon-Ra St. Brown", team: "DET", position: "WR", bye: 8, lastYearPPR: 18.6, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/det.png", isRookie: false },
+        { rank: 13, name: "Christian McCaffrey", team: "SF", position: "RB", bye: 14, lastYearPPR: 12.0, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/sf.png", isRookie: false },
+        { rank: 14, name: "Ashton Jeanty", team: "LV", position: "RB", bye: 8, lastYearPPR: 0.0, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/lv.png", isRookie: true },
+        { rank: 15, name: "De'Von Achane", team: "MIA", position: "RB", bye: 12, lastYearPPR: 17.3, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/mia.png", isRookie: false },
+        { rank: 16, name: "A.J. Brown", team: "PHI", position: "WR", bye: 9, lastYearPPR: 16.7, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/phi.png", isRookie: false },
+        { rank: 17, name: "Jonathan Taylor", team: "IND", position: "RB", bye: 11, lastYearPPR: 16.4, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/ind.png", isRookie: false },
+        { rank: 18, name: "Drake London", team: "ATL", position: "WR", bye: 5, lastYearPPR: 16.5, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/atl.png", isRookie: false },
+        { rank: 19, name: "Lamar Jackson", team: "BAL", position: "QB", bye: 7, lastYearPPR: 25.3, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/bal.png", isRookie: false },
+        { rank: 20, name: "Josh Allen", team: "BUF", position: "QB", bye: 7, lastYearPPR: 22.3, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/buf.png", isRookie: false },
+        { rank: 21, name: "Brock Bowers", team: "LV", position: "TE", bye: 8, lastYearPPR: 15.5, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/lv.png", isRookie: false },
+        { rank: 22, name: "Josh Jacobs", team: "GB", position: "RB", bye: 5, lastYearPPR: 14.1, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/gb.png", isRookie: false },
+        { rank: 23, name: "Ladd McConkey", team: "LAC", position: "WR", bye: 12, lastYearPPR: 15.1, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/lac.png", isRookie: false },
+        { rank: 24, name: "Kyren Williams", team: "LAR", position: "RB", bye: 8, lastYearPPR: 21.3, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/lar.png", isRookie: false },
+        { rank: 25, name: "Bucky Irving", team: "TB", position: "RB", bye: 9, lastYearPPR: 0.0, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/tb.png", isRookie: true },
+        { rank: 26, name: "Tee Higgins", team: "CIN", position: "WR", bye: 10, lastYearPPR: 18.5, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/cin.png", isRookie: false },
+        { rank: 27, name: "Terry McLaurin", team: "WAS", position: "WR", bye: 12, lastYearPPR: 15.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/was.png", isRookie: false },
+        { rank: 28, name: "Trey McBride", team: "ARI", position: "TE", bye: 8, lastYearPPR: 14.2, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/ari.png", isRookie: false },
+        { rank: 29, name: "Breece Hall", team: "NYJ", position: "RB", bye: 9, lastYearPPR: 17.9, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/nyj.png", isRookie: false },
+        { rank: 30, name: "James Cook", team: "BUF", position: "RB", bye: 7, lastYearPPR: 14.5, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/buf.png", isRookie: false },
+        { rank: 31, name: "Chase Brown", team: "CIN", position: "RB", bye: 10, lastYearPPR: 9.1, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/cin.png", isRookie: false },
+        { rank: 32, name: "Jayden Daniels", team: "WAS", position: "QB", bye: 12, lastYearPPR: 20.9, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/was.png", isRookie: false },
+        { rank: 33, name: "Jalen Hurts", team: "PHI", position: "QB", bye: 9, lastYearPPR: 21.0, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/phi.png", isRookie: false },
+        { rank: 34, name: "Garrett Wilson", team: "NYJ", position: "WR", bye: 9, lastYearPPR: 14.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/nyj.png", isRookie: false },
+        { rank: 35, name: "Mike Evans", team: "TB", position: "WR", bye: 9, lastYearPPR: 17.2, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/tb.png", isRookie: false },
+        { rank: 36, name: "Joe Burrow", team: "CIN", position: "QB", bye: 10, lastYearPPR: 21.9, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/cin.png", isRookie: false },
+        { rank: 37, name: "Rashee Rice", team: "KC", position: "WR", bye: 10, lastYearPPR: 16.2, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/kc.png", isRookie: false },
+        { rank: 38, name: "Jaxon Smith-Njigba", team: "SEA", position: "WR", bye: 8, lastYearPPR: 14.9, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/sea.png", isRookie: false },
+        { rank: 39, name: "DJ Moore", team: "CHI", position: "WR", bye: 5, lastYearPPR: 16.1, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/chi.png", isRookie: false },
+        { rank: 40, name: "Tyreek Hill", team: "MIA", position: "WR", bye: 12, lastYearPPR: 20.5, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/mia.png", isRookie: false },
+        { rank: 41, name: "Marvin Harrison Jr.", team: "ARI", position: "WR", bye: 8, lastYearPPR: 0.0, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/ari.png", isRookie: true },
+        { rank: 42, name: "Davante Adams", team: "LV", position: "WR", bye: 8, lastYearPPR: 17.2, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/lv.png", isRookie: false },
+        { rank: 43, name: "Kenneth Walker III", team: "SEA", position: "RB", bye: 8, lastYearPPR: 14.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/sea.png", isRookie: false },
+        { rank: 44, name: "Joe Mixon", team: "HOU", position: "RB", bye: 6, lastYearPPR: 15.1, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/hou.png", isRookie: false },
+        { rank: 45, name: "Jameson Williams", team: "DET", position: "WR", bye: 8, lastYearPPR: 8.5, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/det.png", isRookie: false },
+        { rank: 46, name: "George Kittle", team: "SF", position: "TE", bye: 14, lastYearPPR: 15.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/sf.png", isRookie: false },
+        { rank: 47, name: "Courtland Sutton", team: "DEN", position: "WR", bye: 12, lastYearPPR: 13.9, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/den.png", isRookie: false },
+        { rank: 48, name: "DeVonta Smith", team: "PHI", position: "WR", bye: 9, lastYearPPR: 15.3, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/phi.png", isRookie: false },
+        { rank: 49, name: "Sam LaPorta", team: "DET", position: "TE", bye: 8, lastYearPPR: 14.1, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/det.png", isRookie: false },
+        { rank: 50, name: "James Conner", team: "ARI", position: "RB", bye: 8, lastYearPPR: 14.9, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/ari.png", isRookie: false },
+        { rank: 51, name: "Omarion Hampton", team: "LAC", position: "RB", bye: 12, lastYearPPR: 0.0, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/lac.png", isRookie: true },
+        { rank: 52, name: "T.J. Hockenson", team: "MIN", position: "TE", bye: 6, lastYearPPR: 13.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/min.png", isRookie: false },
+        { rank: 53, name: "Alvin Kamara", team: "NO", position: "RB", bye: 11, lastYearPPR: 15.7, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/no.png", isRookie: false },
+        { rank: 54, name: "D'Andre Swift", team: "CHI", position: "RB", bye: 5, lastYearPPR: 13.2, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/chi.png", isRookie: false },
+        { rank: 55, name: "Calvin Ridley", team: "TEN", position: "WR", bye: 10, lastYearPPR: 14.4, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/ten.png", isRookie: false },
+        { rank: 56, name: "Chuba Hubbard", team: "CAR", position: "RB", bye: 14, lastYearPPR: 10.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/car.png", isRookie: false },
+        { rank: 57, name: "Travis Hunter", team: "JAC", position: "WR", bye: 8, lastYearPPR: 0.0, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/jax.png", isRookie: true },
+        { rank: 58, name: "TreVeyon Henderson", team: "NE", position: "RB", bye: 14, lastYearPPR: 0.0, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/ne.png", isRookie: true },
+        { rank: 59, name: "Isiah Pacheco", team: "KC", position: "RB", bye: 10, lastYearPPR: 14.3, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/kc.png", isRookie: false },
+        { rank: 60, name: "RJ Harvey", team: "DEN", position: "RB", bye: 12, lastYearPPR: 0.0, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/den.png", isRookie: true },
+        { rank: 61, name: "Xavier Worthy", team: "KC", position: "WR", bye: 10, lastYearPPR: 0.0, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/kc.png", isRookie: true },
+        { rank: 62, name: "Mark Andrews", team: "BAL", position: "TE", bye: 7, lastYearPPR: 12.9, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/bal.png", isRookie: false },
+        { rank: 63, name: "Tetairoa McMillan", team: "CAR", position: "WR", bye: 14, lastYearPPR: 0.0, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/car.png", isRookie: true },
+        { rank: 64, name: "Patrick Mahomes II", team: "KC", position: "QB", bye: 10, lastYearPPR: 18.4, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/kc.png", isRookie: false },
+        { rank: 65, name: "Anthony Richardson", team: "IND", position: "QB", bye: 11, lastYearPPR: 18.2, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/ind.png", isRookie: false },
+        { rank: 66, name: "C.J. Stroud", team: "HOU", position: "QB", bye: 6, lastYearPPR: 20.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/hou.png", isRookie: false },
+        { rank: 67, name: "Chris Olave", team: "NO", position: "WR", bye: 11, lastYearPPR: 15.9, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/no.png", isRookie: false },
+        { rank: 68, name: "DK Metcalf", team: "PIT", position: "WR", bye: 5, lastYearPPR: 14.6, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/pit.png", isRookie: false },
+        { rank: 69, name: "Travis Etienne Jr.", team: "JAC", position: "RB", bye: 8, lastYearPPR: 16.6, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/jax.png", isRookie: false },
+        { rank: 70, name: "Jordan Love", team: "GB", position: "QB", bye: 5, lastYearPPR: 19.4, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/gb.png", isRookie: false },
+        { rank: 71, name: "Dak Prescott", team: "DAL", position: "QB", bye: 10, lastYearPPR: 20.7, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/dal.png", isRookie: false },
+        { rank: 72, name: "Zay Flowers", team: "BAL", position: "WR", bye: 7, lastYearPPR: 13.5, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/bal.png", isRookie: false },
+        { rank: 73, name: "Kyle Pitts", team: "ATL", position: "TE", bye: 5, lastYearPPR: 9.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/atl.png", isRookie: false },
+        { rank: 74, name: "George Pickens", team: "DAL", position: "WR", bye: 10, lastYearPPR: 13.1, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/dal.png", isRookie: false },
+        { rank: 75, name: "Jaylen Waddle", team: "MIA", position: "WR", bye: 12, lastYearPPR: 15.2, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/mia.png", isRookie: false },
+        { rank: 76, name: "Deebo Samuel", team: "WAS", position: "WR", bye: 12, lastYearPPR: 16.9, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/was.png", isRookie: false },
+        { rank: 77, name: "Jordan Addison", team: "MIN", position: "WR", bye: 6, lastYearPPR: 13.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/min.png", isRookie: false },
+        { rank: 78, name: "Jake Moody", team: "SF", position: "K", bye: 14, lastYearPPR: 9.1, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/sf.png", isRookie: false },
+        { rank: 79, name: "Justin Tucker", team: "BAL", position: "K", bye: 7, lastYearPPR: 8.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/bal.png", isRookie: false },
+        { rank: 80, name: "Evan McPherson", team: "CIN", position: "K", bye: 10, lastYearPPR: 8.5, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/cin.png", isRookie: false },
+        { rank: 81, name: "Brandon Aubrey", team: "DAL", position: "K", bye: 10, lastYearPPR: 10.7, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/dal.png", isRookie: false },
+        { rank: 82, name: "Harrison Butker", team: "KC", position: "K", bye: 10, lastYearPPR: 8.9, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/kc.png", isRookie: false },
+        { rank: 83, name: "Tyler Bass", team: "BUF", position: "K", bye: 7, lastYearPPR: 8.2, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/buf.png", isRookie: false },
+        { rank: 84, name: "Jake Elliott", team: "PHI", position: "K", bye: 9, lastYearPPR: 8.6, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/phi.png", isRookie: false },
+        { rank: 85, name: "Cameron Dicker", team: "LAC", position: "K", bye: 12, lastYearPPR: 8.4, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/lac.png", isRookie: false },
+        { rank: 86, name: "Ka'imi Fairbairn", team: "HOU", position: "K", bye: 6, lastYearPPR: 8.1, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/hou.png", isRookie: false },
+        { rank: 87, name: "Matt Gay", team: "IND", position: "K", bye: 11, lastYearPPR: 8.0, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/ind.png", isRookie: false },
+        { rank: 88, name: "Jason Myers", team: "SEA", position: "K", bye: 8, lastYearPPR: 8.3, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/sea.png", isRookie: false },
+        { rank: 89, name: "Brandon McManus", team: "GB", position: "K", bye: 5, lastYearPPR: 7.9, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/gb.png", isRookie: false },
+        { rank: 90, name: "Baltimore Ravens", team: "BAL", position: "DST", bye: 7, lastYearPPR: 9.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/bal.png", isRookie: false },
+        { rank: 91, name: "Cleveland Browns", team: "CLE", position: "DST", bye: 9, lastYearPPR: 8.9, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/cle.png", isRookie: false },
+        { rank: 92, name: "Kansas City Chiefs", team: "KC", position: "DST", bye: 10, lastYearPPR: 8.5, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/kc.png", isRookie: false },
+        { rank: 93, name: "New York Jets", team: "NYJ", position: "DST", bye: 9, lastYearPPR: 8.1, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/nyj.png", isRookie: false },
+        { rank: 94, name: "Dallas Cowboys", team: "DAL", position: "DST", bye: 10, lastYearPPR: 8.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/dal.png", isRookie: false },
+        { rank: 95, name: "Buffalo Bills", team: "BUF", position: "DST", bye: 7, lastYearPPR: 8.4, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/buf.png", isRookie: false },
+        { rank: 96, name: "San Francisco 49ers", team: "SF", position: "DST", bye: 14, lastYearPPR: 7.9, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/sf.png", isRookie: false },
+        { rank: 97, name: "Indianapolis Colts", team: "IND", position: "DST", bye: 11, lastYearPPR: 7.5, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/ind.png", isRookie: false },
+        { rank: 98, name: "Pittsburgh Steelers", team: "PIT", position: "DST", bye: 5, lastYearPPR: 7.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/pit.png", isRookie: false },
+        { rank: 99, name: "Houston Texans", team: "HOU", position: "DST", bye: 6, lastYearPPR: 7.2, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/hou.png", isRookie: false },
+        { rank: 100, name: "New Orleans Saints", team: "NO", position: "DST", bye: 11, lastYearPPR: 7.6, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/no.png", isRookie: false },
+        { rank: 101, name: "Rachaad White", team: "TB", position: "RB", bye: 9, lastYearPPR: 13.9, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/tb.png", isRookie: false },
+        { rank: 102, name: "Travis Kelce", team: "KC", position: "TE", bye: 10, lastYearPPR: 14.6, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/kc.png", isRookie: false },
+        { rank: 103, name: "David Montgomery", team: "DET", position: "RB", bye: 8, lastYearPPR: 13.5, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/det.png", isRookie: false },
+        { rank: 104, name: "Zamir White", team: "LV", position: "RB", bye: 8, lastYearPPR: 10.1, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/lv.png", isRookie: false },
+        { rank: 105, name: "Chris Godwin", team: "TB", position: "WR", bye: 9, lastYearPPR: 12.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/tb.png", isRookie: false },
+        { rank: 106, name: "Tua Tagovailoa", team: "MIA", position: "QB", bye: 12, lastYearPPR: 17.1, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/mia.png", isRookie: false },
+        { rank: 107, name: "Justin Fields", team: "PIT", position: "QB", bye: 5, lastYearPPR: 18.4, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/pit.png", isRookie: false },
+        { rank: 108, name: "Kyler Murray", team: "ARI", position: "QB", bye: 8, lastYearPPR: 18.1, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/ari.png", isRookie: false },
+        { rank: 109, name: "Evan Engram", team: "JAC", position: "TE", bye: 8, lastYearPPR: 11.5, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/jax.png", isRookie: false },
+        { rank: 110, name: "Michael Pittman Jr.", team: "IND", position: "WR", bye: 11, lastYearPPR: 15.6, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/ind.png", isRookie: false },
+        { rank: 111, name: "Rashee Rice", team: "KC", position: "WR", bye: 10, lastYearPPR: 14.3, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/kc.png", isRookie: false },
+        { rank: 112, name: "Jaylen Reed", team: "GB", position: "WR", bye: 5, lastYearPPR: 13.6, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/gb.png", isRookie: false },
+        { rank: 113, name: "Javonte Williams", team: "DEN", position: "RB", bye: 12, lastYearPPR: 10.2, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/den.png", isRookie: false },
+        { rank: 114, name: "Brian Robinson Jr.", team: "WAS", position: "RB", bye: 12, lastYearPPR: 12.5, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/was.png", isRookie: false },
+        { rank: 115, name: "Diontae Johnson", team: "CAR", position: "WR", bye: 14, lastYearPPR: 12.1, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/car.png", isRookie: false },
+        { rank: 116, name: "Christian Kirk", team: "HOU", position: "WR", bye: 6, lastYearPPR: 13.4, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/hou.png", isRookie: false },
+        { rank: 117, name: "Dalton Kincaid", team: "BUF", position: "TE", bye: 7, lastYearPPR: 9.2, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/buf.png", isRookie: false },
+        { rank: 118, name: "Jake Ferguson", team: "DAL", position: "TE", bye: 10, lastYearPPR: 10.9, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/dal.png", isRookie: false },
+        { rank: 119, name: "Gus Edwards", team: "LAC", position: "RB", bye: 12, lastYearPPR: 9.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/lac.png", isRookie: false },
+        { rank: 120, name: "Zack Moss", team: "CIN", position: "RB", bye: 10, lastYearPPR: 11.7, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/cin.png", isRookie: false },
+        { rank: 121, name: "Justin Herbert", team: "LAC", position: "QB", bye: 12, lastYearPPR: 19.6, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/lac.png", isRookie: false },
+        { rank: 122, name: "Trevor Lawrence", team: "JAC", position: "QB", bye: 8, lastYearPPR: 17.7, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/jax.png", isRookie: false },
+        { rank: 123, name: "Jared Goff", team: "DET", position: "QB", bye: 8, lastYearPPR: 18.3, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/det.png", isRookie: false },
+        { rank: 124, name: "Brock Purdy", team: "SF", position: "QB", bye: 14, lastYearPPR: 18.6, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/sf.png", isRookie: false },
+        { rank: 125, name: "Kirk Cousins", team: "ATL", position: "QB", bye: 5, lastYearPPR: 18.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/atl.png", isRookie: false },
+        { rank: 126, name: "Najee Harris", team: "PIT", position: "RB", bye: 5, lastYearPPR: 12.3, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/pit.png", isRookie: false },
+        { rank: 127, name: "Jaylen Warren", team: "PIT", position: "RB", bye: 5, lastYearPPR: 10.9, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/pit.png", isRookie: false },
+        { rank: 128, name: "Tank Dell", team: "HOU", position: "WR", bye: 6, lastYearPPR: 15.0, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/hou.png", isRookie: false },
+        { rank: 129, name: "Pat Freiermuth", team: "PIT", position: "TE", bye: 5, lastYearPPR: 7.5, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/pit.png", isRookie: false },
+        { rank: 130, name: "Luke Musgrave", team: "GB", position: "TE", bye: 5, lastYearPPR: 7.4, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/gb.png", isRookie: false },
+        { rank: 131, name: "Caleb Williams", team: "CHI", position: "QB", bye: 5, lastYearPPR: 0.0, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/chi.png", isRookie: true },
+        { rank: 132, name: "Matthew Stafford", team: "LAR", position: "QB", bye: 8, lastYearPPR: 17.5, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/lar.png", isRookie: false },
+        { rank: 133, name: "Aaron Rodgers", team: "NYJ", position: "QB", bye: 9, lastYearPPR: 0.0, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/nyj.png", isRookie: false },
+        { rank: 134, name: "Deshaun Watson", team: "CLE", position: "QB", bye: 9, lastYearPPR: 14.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/cle.png", isRookie: false },
+        { rank: 135, name: "David Njoku", team: "CLE", position: "TE", bye: 9, lastYearPPR: 12.2, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/cle.png", isRookie: false },
+        { rank: 136, name: "Amari Cooper", team: "CLE", position: "WR", bye: 9, lastYearPPR: 15.1, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/cle.png", isRookie: false },
+        { rank: 137, name: "Jerry Jeudy", team: "CLE", position: "WR", bye: 9, lastYearPPR: 9.7, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/cle.png", isRookie: false },
+        { rank: 138, name: "Nick Chubb", team: "CLE", position: "RB", bye: 9, lastYearPPR: 10.6, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/cle.png", isRookie: false },
+        { rank: 139, name: "Jerome Ford", team: "CLE", position: "RB", bye: 9, lastYearPPR: 10.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/cle.png", isRookie: false },
+        { rank: 140, name: "Antonio Gibson", team: "NE", position: "RB", bye: 14, lastYearPPR: 8.1, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/ne.png", isRookie: false },
+        { rank: 141, name: "Rhamondre Stevenson", team: "NE", position: "RB", bye: 14, lastYearPPR: 12.7, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/ne.png", isRookie: false },
+        { rank: 142, name: "Demario Douglas", team: "NE", position: "WR", bye: 14, lastYearPPR: 8.4, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/ne.png", isRookie: false },
+        { rank: 143, name: "Hunter Henry", team: "NE", position: "TE", bye: 14, lastYearPPR: 8.9, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/ne.png", isRookie: false },
+        { rank: 144, name: "Baker Mayfield", team: "TB", position: "QB", bye: 9, lastYearPPR: 17.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/tb.png", isRookie: false },
+        { rank: 145, name: "Geno Smith", team: "SEA", position: "QB", bye: 8, lastYearPPR: 15.9, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/sea.png", isRookie: false },
+        { rank: 146, name: "Will Levis", team: "TEN", position: "QB", bye: 10, lastYearPPR: 13.6, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/ten.png", isRookie: false },
+        { rank: 147, name: "Tyjae Spears", team: "TEN", position: "RB", bye: 10, lastYearPPR: 9.5, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/ten.png", isRookie: false },
+        { rank: 148, name: "Tony Pollard", team: "TEN", position: "RB", bye: 10, lastYearPPR: 13.0, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/ten.png", isRookie: false },
+        { rank: 149, name: "DeAndre Hopkins", team: "TEN", position: "WR", bye: 10, lastYearPPR: 13.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/ten.png", isRookie: false },
+        { rank: 150, name: "Chigoziem Okonkwo", team: "TEN", position: "TE", bye: 10, lastYearPPR: 6.4, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/ten.png", isRookie: false },
+    ];
+
+    // --- STATE MANAGEMENT ---
+    let masterAvailablePlayers = [];
+    let myTeam = [];
+    let currentSort = { column: 'rank', order: 'asc' };
+    const rosterSettings = { "QB": 1, "RB": 2, "WR": 2, "TE": 1, "FLEX": 1, "DST": 1, "K": 1 };
+    const flexEligible = ['RB', 'WR', 'TE'];
+
+    // --- DOM ELEMENTS ---
+    const playersTbody = document.getElementById('players-tbody');
+    const myTeamList = document.getElementById('my-team-list');
+    const searchInput = document.getElementById('searchInput');
+    const resetButton = document.getElementById('resetButton');
+    const emailSection = document.getElementById('email-section');
+    const emailRosterButton = document.getElementById('emailRosterButton');
+    const tableHeaders = document.querySelectorAll('thead th');
+    const numTeamsInput = document.getElementById('numTeams');
+    const myPickInput = document.getElementById('myPick');
+    const calculateButton = document.getElementById('calculateButton');
+    const generateTeamButton = document.getElementById('generateTeamButton');
+    const strategyContainer = document.getElementById('strategy-results-container');
+    const strategyList = document.getElementById('strategy-results-list');
+    const rosterGradeContainer = document.getElementById('roster-grade-container');
+    const rosterGradeDetails = document.getElementById('roster-grade-details');
+
+    // --- CORE FUNCTIONS ---
+
+    function updateDisplay() {
+        const searchTerm = searchInput.value.toLowerCase();
+        
+        let displayedPlayers = masterAvailablePlayers;
+
+        if (searchTerm) {
+            if (searchTerm === 'flex') {
+                displayedPlayers = masterAvailablePlayers.filter(p => flexEligible.includes(p.position));
+            } else {
+                displayedPlayers = masterAvailablePlayers.filter(p => 
+                    p.name.toLowerCase().includes(searchTerm) ||
+                    p.team.toLowerCase().includes(searchTerm) ||
+                    p.position.toLowerCase().includes(searchTerm)
+                );
+            }
+        }
+
+        const sortOrder = currentSort.order === 'asc' ? 1 : -1;
+        displayedPlayers.sort((a, b) => {
+            if (['rank', 'bye', 'lastYearPPR'].includes(currentSort.column)) {
+                 return (a[currentSort.column] - b[currentSort.column]) * sortOrder * (currentSort.column === 'lastYearPPR' ? -1 : 1);
+            }
+            if (a[currentSort.column] < b[currentSort.column]) return -1 * sortOrder;
+            if (a[currentSort.column] > b[currentSort.column]) return 1 * sortOrder;
+            return 0;
+        });
+
+        renderPlayerRows(displayedPlayers);
+        highlightNextPicks();
+    }
+
+    function renderPlayerRows(playersToRender) {
+        playersTbody.innerHTML = '';
+        if (playersToRender.length === 0) {
+            playersTbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-500">No players available or match your search.</td></tr>`;
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+        playersToRender.forEach(player => {
+            const row = document.createElement('tr');
+            row.className = 'bg-gray-800 border-b border-gray-700 hover:bg-gray-700 transition-colors duration-150';
+            row.dataset.rank = player.rank;
+            const rookieBadge = player.isRookie ? '<span class="rookie-badge">R</span>' : '';
+            row.innerHTML = `
+                <td class="px-2 py-3 font-medium text-white">${player.rank}</td>
+                <td class="px-4 py-3 font-semibold">
+                    <div class="flex items-center">
+                        <img src="${player.logoUrl}" alt="${player.team}" class="w-6 h-6 mr-3 rounded-full" onerror="this.style.display='none'">
+                        ${player.name} ${rookieBadge}
+                    </div>
+                </td>
+                <td class="px-2 py-3">${player.position}</td>
+                <td class="px-2 py-3">${player.bye}</td>
+                <td class="px-4 py-3">${player.lastYearPPR.toFixed(1)}</td>
+                <td class="px-4 py-3 text-center space-x-3">
+                    <button class="draft-me-btn font-medium text-green-400 hover:text-green-300">My Pick</button>
+                    <button class="opponent-pick-btn font-medium text-red-400 hover:text-red-300">Claimed</button>
+                </td>
+            `;
+            fragment.appendChild(row);
+        });
+        playersTbody.appendChild(fragment);
+    }
+
+    function renderMyTeam() {
+        myTeamList.innerHTML = '';
+        const { starters, bench } = getRosterSlots();
+
+        const renderSlot = (pos, player) => {
+            const slotDiv = document.createElement('div');
+            if (player) {
+                slotDiv.className = 'roster-slot';
+                slotDiv.innerHTML = `
+                    <div class="roster-pos">${pos}</div>
+                    <img src="${player.logoUrl}" alt="${player.team}" class="w-5 h-5 mx-2 rounded-full" onerror="this.style.display='none'">
+                    <div class="roster-player-name">${player.name}</div>`;
+            } else {
+                slotDiv.className = 'roster-slot empty';
+                slotDiv.innerHTML = `<div class="roster-pos">${pos}</div>`;
+            }
+            myTeamList.appendChild(slotDiv);
+        };
+        
+        Object.keys(rosterSettings).forEach(pos => {
+            for (let i = 0; i < rosterSettings[pos]; i++) {
+                renderSlot(pos, starters[pos] ? starters[pos][i] : null);
+            }
+        });
+        
+        if(bench.length > 0) {
+            const benchTitle = document.createElement('h3');
+            benchTitle.className = 'text-lg font-semibold text-indigo-400 mt-4';
+            benchTitle.textContent = 'Bench';
+            myTeamList.appendChild(benchTitle);
+            bench.forEach(player => renderSlot('BEN', player));
+        }
+    }
+    
+    function draftPlayer(rank, isMyPick) {
+        const playerIndex = masterAvailablePlayers.findIndex(p => p.rank === rank);
+        if (playerIndex > -1) {
+            const [player] = masterAvailablePlayers.splice(playerIndex, 1);
+            if (isMyPick) {
+                myTeam.push(player);
+                myTeam.sort((a, b) => a.rank - b.rank);
+                renderMyTeam();
+                checkRosterCompletion();
+            }
+            updateDisplay();
+        }
+    }
+
+    function getRosterSlots(team = myTeam) {
+        const starters = { QB: [], RB: [], WR: [], TE: [], FLEX: [], DST: [], K: [] };
+        const bench = [];
+        const placedPlayerRanks = new Set();
+
+        // Fill dedicated starter slots first
+        Object.keys(rosterSettings).forEach(pos => {
+            if (pos !== 'FLEX') {
+                const playersForPos = team.filter(p => p.position === pos && !placedPlayerRanks.has(p.rank));
+                const playersToPlace = playersForPos.slice(0, rosterSettings[pos]);
+                starters[pos] = playersToPlace;
+                playersToPlace.forEach(p => placedPlayerRanks.add(p.rank));
+            }
+        });
+
+        // Fill FLEX slot
+        const flexPlayers = team.filter(p => flexEligible.includes(p.position) && !placedPlayerRanks.has(p.rank));
+        const flexToPlace = flexPlayers.slice(0, rosterSettings.FLEX);
+        starters.FLEX = flexToPlace;
+        flexToPlace.forEach(p => placedPlayerRanks.add(p.rank));
+
+        // Remaining players go to bench
+        team.forEach(p => {
+            if (!placedPlayerRanks.has(p.rank)) {
+                bench.push(p);
+            }
+        });
+
+        return { starters, bench };
+    }
+    
+    function checkRosterCompletion() {
+        const { starters } = getRosterSlots();
+        let startersCount = 0;
+        Object.values(starters).forEach(arr => startersCount += arr.length);
+        
+        const totalStarterSlots = Object.values(rosterSettings).reduce((sum, val) => sum + val, 0);
+
+        if (startersCount >= totalStarterSlots) {
+            emailSection.classList.remove('hidden');
+            calculateAndDisplayRosterGrade();
+            rosterGradeContainer.classList.remove('hidden');
+        } else {
+            emailSection.classList.add('hidden');
+            rosterGradeContainer.classList.add('hidden');
+        }
+    }
+
+    function calculateAndDisplayRosterGrade() {
+        const { starters } = getRosterSlots();
+        const allStarters = Object.values(starters).flat();
+        if (allStarters.length === 0) return;
+
+        let totalPPR = 0;
+        let totalRank = 0;
+        allStarters.forEach(p => {
+            totalPPR += p.lastYearPPR;
+            totalRank += p.rank;
+        });
+        
+        const avgPPR = totalPPR / allStarters.length;
+        const avgRank = totalRank / allStarters.length;
+
+        let score = 60 + (avgPPR * 2.5) - (avgRank / 5);
+        score = Math.max(0, Math.min(100, score));
+
+        let grade, wins, chances;
+        if (score >= 95) { grade = 'A+'; wins = '12-14'; chances = '25%'; }
+        else if (score >= 90) { grade = 'A'; wins = '11-13'; chances = '20%'; }
+        else if (score >= 85) { grade = 'B+'; wins = '9-11'; chances = '15%'; }
+        else if (score >= 80) { grade = 'B'; wins = '8-10'; chances = '10%'; }
+        else if (score >= 75) { grade = 'C+'; wins = '7-9'; chances = '5%'; }
+        else if (score >= 70) { grade = 'C'; wins = '6-8'; chances = '3%'; }
+        else { grade = 'D'; wins = '4-6'; chances = '1%'; }
+
+        rosterGradeDetails.innerHTML = `
+            <div class="text-6xl font-bold text-indigo-400 mb-2">${grade}</div>
+            <p class="text-gray-300"><strong class="font-semibold">Projected Wins:</strong> ${wins}</p>
+            <p class="text-gray-300"><strong class="font-semibold">Championship Chance:</strong> ${chances}</p>
+        `;
+    }
+
+    function generateAndSendEmail() {
+        const { starters, bench } = getRosterSlots();
+        const gmEmail = "ingramjam@gmail.com";
+        const coachEmail = "CHarris90@gmail.com";
+        const subject = "Final Fantasy Roster for Scoring Big TD's 🏈🏈";
+
+        let body = "Here is the final drafted roster:\n\n";
+        body += "--- STARTERS ---\n";
+        Object.keys(starters).forEach(pos => {
+            starters[pos].forEach(p => {
+                body += `${pos}: ${p.name} (${p.team})\n`;
+            });
+        });
+
+        if (bench.length > 0) {
+            body += "\n--- BENCH ---\n";
+            bench.forEach(p => {
+                body += `BEN: ${p.name} (${p.team})\n`;
+            });
+        }
+
+        const mailtoLink = `mailto:${gmEmail},${coachEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.location.href = mailtoLink;
+    }
+
+    function highlightNextPicks() {
+        document.querySelectorAll('.highlight-pick').forEach(row => row.classList.remove('highlight-pick'));
+        const top3Ranks = masterAvailablePlayers.slice(0, 3).map(p => p.rank);
+        top3Ranks.forEach(rank => {
+            const row = playersTbody.querySelector(`tr[data-rank="${rank}"]`);
+            if (row) row.classList.add('highlight-pick');
+        });
+    }
+
+    function handleSort(column) {
+        if (currentSort.column === column) {
+            currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
+        } else {
+            currentSort.column = column;
+            currentSort.order = column === 'lastYearPPR' ? 'desc' : 'asc';
+        }
+        updateDisplay();
+        updateSortIndicators();
+    }
+    
+    function updateSortIndicators() {
+        tableHeaders.forEach(th => {
+            const sortKey = th.dataset.sort;
+            if (sortKey) {
+                let currentText = th.textContent.replace(/ [▲▼]/, '');
+                let indicator = '';
+                if (sortKey === currentSort.column) {
+                    indicator = currentSort.order === 'asc' ? ' ▲' : ' ▼';
+                }
+                th.textContent = currentText + indicator;
+            }
+        });
+    }
+
+    function calculateBestAvailable() {
+        const numTeams = parseInt(numTeamsInput.value, 10);
+        const myPick = parseInt(myPickInput.value, 10);
+
+        if (isNaN(numTeams) || isNaN(myPick) || numTeams < 2 || myPick < 1 || myPick > numTeams) {
+            // Use a custom modal instead of alert
+            return;
+        }
+
+        const picksBeforeMe = myPick - 1;
+        const projectedAvailable = masterAvailablePlayers.slice(picksBeforeMe);
+        
+        strategyList.innerHTML = '';
+        if (projectedAvailable.length > 0) {
+            const title = document.createElement('p');
+            title.className = 'text-gray-400 mb-2 text-sm';
+            title.textContent = `At pick #${myPick}, top options could be:`;
+            strategyList.appendChild(title);
+
+            const list = document.createElement('ul');
+            list.className = 'space-y-1';
+            projectedAvailable.slice(0, 5).forEach(player => {
+                const item = document.createElement('li');
+                item.className = 'text-sm p-2 bg-gray-700 rounded';
+                item.innerHTML = `<span class="font-bold text-indigo-300">${player.rank}.</span> <span class="font-medium">${player.name}</span> <span class="text-gray-400">(${player.position} - ${player.team})</span>`;
+                list.appendChild(item);
+            });
+            strategyList.appendChild(list);
+
+        } else {
+            strategyList.innerHTML = `<p class="text-gray-500 italic">Not enough players to project.</p>`;
+        }
+        strategyContainer.classList.remove('hidden');
+    }
+    
+    function generateMockDraft() {
+        const numTeams = parseInt(numTeamsInput.value, 10);
+        const myPickPosition = parseInt(myPickInput.value, 10) - 1; // 0-indexed
+
+        if (isNaN(numTeams) || isNaN(myPickPosition) || numTeams < 2 || myPickPosition < 0 || myPickPosition >= numTeams) {
+            // Use a custom modal here in a real app
+            console.error("Invalid draft settings for mock draft.");
+            return;
+        }
+
+        let mockPlayerPool = JSON.parse(JSON.stringify(initialPlayers));
+        const allTeamsRosters = Array.from({ length: numTeams }, () => []);
+        const totalRounds = 15; // Standard draft depth
+
+        for (let round = 0; round < totalRounds; round++) {
+            const isSnake = round % 2 !== 0;
+            const picksOrder = Array.from({ length: numTeams }, (_, i) => i);
+            if (isSnake) picksOrder.reverse();
+
+            for (const teamIndex of picksOrder) {
+                if (mockPlayerPool.length === 0) break;
+
+                let playerToDraft;
+                if (teamIndex === myPickPosition) {
+                    playerToDraft = mockPlayerPool.shift();
+                } else {
+                    playerToDraft = findBestPickForOpponent(allTeamsRosters[teamIndex], mockPlayerPool);
+                    const indexToRemove = mockPlayerPool.findIndex(p => p.rank === playerToDraft.rank);
+                    if (indexToRemove > -1) {
+                        mockPlayerPool.splice(indexToRemove, 1);
+                    }
+                }
+                
+                if (playerToDraft) {
+                    allTeamsRosters[teamIndex].push(playerToDraft);
+                }
+            }
+        }
+
+        // Update the main state with the results of the mock draft
+        myTeam = allTeamsRosters[myPickPosition];
+        const draftedPlayerRanks = new Set(allTeamsRosters.flat().map(p => p.rank));
+        masterAvailablePlayers = initialPlayers.filter(p => !draftedPlayerRanks.has(p.rank));
+
+        // Re-render the entire UI
+        renderMyTeam();
+        updateDisplay();
+        checkRosterCompletion();
+    }
+
+    function findBestPickForOpponent(roster, availablePlayers) {
+        const { starters } = getRosterSlots(roster);
+        const neededPositions = new Set();
+        
+        Object.keys(rosterSettings).forEach(pos => {
+            const starterCount = starters[pos] ? starters[pos].length : 0;
+            if (starterCount < rosterSettings[pos]) {
+                if (pos === 'FLEX') {
+                    flexEligible.forEach(p => neededPositions.add(p));
+                } else {
+                    neededPositions.add(pos);
+                }
+            }
+        });
+
+        if (neededPositions.size > 0) {
+            for (const player of availablePlayers) {
+                if (neededPositions.has(player.position)) {
+                    return player;
+                }
+            }
+        }
+        
+        // If all starter positions are filled or no suitable player found, take best available
+        return availablePlayers[0];
+    }
+
+
+    function resetDraft() {
+        masterAvailablePlayers = JSON.parse(JSON.stringify(initialPlayers));
+        myTeam = [];
+        searchInput.value = '';
+        currentSort = { column: 'rank', order: 'asc' };
+        
+        renderMyTeam();
+        updateDisplay();
+        updateSortIndicators();
+        strategyContainer.classList.add('hidden');
+        rosterGradeContainer.classList.add('hidden');
+        emailSection.classList.add('hidden');
+    }
+
+    // --- EVENT LISTENERS ---
+    playersTbody.addEventListener('click', (e) => {
+        const target = e.target;
+        if (target.tagName !== 'BUTTON') return;
+        const row = target.closest('tr');
+        const rank = parseInt(row.dataset.rank, 10);
+        if (target.classList.contains('draft-me-btn')) draftPlayer(rank, true);
+        else if (target.classList.contains('opponent-pick-btn')) draftPlayer(rank, false);
+    });
+    
+    searchInput.addEventListener('input', updateDisplay);
+    tableHeaders.forEach(th => {
+        if (th.dataset.sort) th.addEventListener('click', () => handleSort(th.dataset.sort));
+    });
+    resetButton.addEventListener('click', resetDraft);
+    calculateButton.addEventListener('click', calculateBestAvailable);
+    generateTeamButton.addEventListener('click', generateMockDraft);
+    emailRosterButton.addEventListener('click', generateAndSendEmail);
+
+    // --- INITIALIZATION ---
+    function init() {
+        resetDraft();
+    }
+    init();
+</script>
+</body>
+</html>
