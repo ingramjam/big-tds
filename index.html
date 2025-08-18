@@ -114,6 +114,13 @@
                         </div>
                     </div>
                 </div>
+                
+                <div id="strategy-results-container" class="bg-gray-800 p-4 rounded-lg shadow-2xl h-fit hidden mb-6">
+                    <h3 class="text-xl font-semibold mb-3 text-white">Projected Best Available</h3>
+                    <div id="strategy-results-list">
+                        <!-- Projected players will appear here -->
+                    </div>
+                </div>
 
                 <!-- Available Players Module -->
                 <div class="bg-gray-800 p-4 rounded-lg shadow-2xl">
@@ -148,7 +155,7 @@
                 </div>
             </div>
 
-            <!-- Right Column: My Team & Strategy -->
+            <!-- Right Column: My Team & Roster Grade -->
             <div class="space-y-6">
                  <div class="bg-gray-800 p-4 rounded-lg shadow-2xl h-fit">
                     <div class="flex justify-between items-center mb-4">
@@ -166,12 +173,6 @@
                     <h3 class="text-xl font-semibold mb-3 text-white">Roster Analysis</h3>
                     <div id="roster-grade-details" class="text-center">
                         <!-- Grade and projections will appear here -->
-                    </div>
-                </div>
-                <div id="strategy-results-container" class="bg-gray-800 p-4 rounded-lg shadow-2xl h-fit hidden">
-                    <h3 class="text-xl font-semibold mb-3 text-white">Projected Best Available</h3>
-                    <div id="strategy-results-list">
-                        <!-- Projected players will appear here -->
                     </div>
                 </div>
             </div>
@@ -213,24 +214,24 @@
         { rank: 4, tier: 1, name: "Justin Jefferson", team: "MIN", position: "WR", bye: 6, notes: "A healthy Jefferson is a fantasy force of nature. He only played 10 games last season due to a hamstring injury, but he still had 68 catches for 1,074 yards and 5 touchdowns, and he was the WR2 in fantasy points per game. Jefferson is a route-running virtuoso with extraordinary ball skills. The only question is whether QB Sam Darnold will be able to consistently deliver the ball to him.", lastYearPPR: 18.7, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/min.png" },
         { rank: 5, tier: 1, name: "CeeDee Lamb", team: "DAL", position: "WR", bye: 10, notes: "Lamb was the WR1 in PPR fantasy scoring last year, with 135 catches for 1,749 yards and 12 touchdowns. He’s the undisputed alpha receiver in a potent Dallas passing attack, and he’s still only 26 years old. Lamb is a good bet to finish as a top-three fantasy receiver once again.", lastYearPPR: 17.6, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/dal.png" },
         { rank: 6, tier: 1, name: "Jahmyr Gibbs", team: "DET", position: "RB", bye: 8, notes: "Gibbs was electric as a rookie, racking up 1,261 yards from scrimmage and 11 touchdowns despite sharing work with David Montgomery. Gibbs is a big-play machine with 4.36 speed and dazzling open-field running ability. With another year of experience under his belt, Gibbs could be even more dangerous in 2025.", lastYearPPR: 21.4, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/det.png" },
-        { rank: 7, tier: 2, name: "Derrick Henry", team: "BAL", position: "RB", bye: 7, notes: "", lastYearPPR: 18.6, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/bal.png" },
-        { rank: 8, tier: 2, name: "Nico Collins", team: "HOU", position: "WR", bye: 6, notes: "", lastYearPPR: 17.6, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/hou.png" },
-        { rank: 9, tier: 2, name: "Puka Nacua", team: "LAR", position: "WR", bye: 8, notes: "", lastYearPPR: 18.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/lar.png" },
-        { rank: 10, tier: 2, name: "Malik Nabers", team: "NYG", position: "WR", bye: 14, notes: "", lastYearPPR: 18.2, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png" },
-        { rank: 11, tier: 2, name: "Brian Thomas Jr.", team: "JAC", position: "WR", bye: 8, notes: "", lastYearPPR: 16.7, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/jax.png" },
-        { rank: 12, tier: 3, name: "Amon-Ra St. Brown", team: "DET", position: "WR", bye: 8, notes: "", lastYearPPR: 18.6, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/det.png" },
-        { rank: 13, tier: 3, name: "Christian McCaffrey", team: "SF", position: "RB", bye: 14, notes: "", lastYearPPR: 12.0, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/sf.png" },
-        { rank: 14, tier: 3, name: "Ashton Jeanty", team: "FA", position: "RB", bye: 0, notes: "", lastYearPPR: 0.0, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/FA.png" },
-        { rank: 15, tier: 3, name: "De'Von Achane", team: "MIA", position: "RB", bye: 12, notes: "", lastYearPPR: 17.3, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/mia.png" },
-        { rank: 16, tier: 3, name: "A.J. Brown", team: "PHI", position: "WR", bye: 9, notes: "", lastYearPPR: 16.7, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/phi.png" },
-        { rank: 17, tier: 3, name: "Jonathan Taylor", team: "IND", position: "RB", bye: 11, notes: "", lastYearPPR: 16.4, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/ind.png" },
-        { rank: 18, tier: 3, name: "Drake London", team: "ATL", position: "WR", bye: 5, notes: "", lastYearPPR: 16.5, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/atl.png" },
-        { rank: 19, tier: 4, name: "Lamar Jackson", team: "BAL", position: "QB", bye: 7, notes: "", lastYearPPR: 25.3, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/bal.png" },
-        { rank: 20, tier: 4, name: "Josh Allen", team: "BUF", position: "QB", bye: 7, notes: "", lastYearPPR: 22.3, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/buf.png" },
-        { rank: 21, tier: 4, name: "Brock Bowers", team: "LV", position: "TE", bye: 8, notes: "", lastYearPPR: 15.5, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/lv.png" },
-        { rank: 22, tier: 4, name: "Josh Jacobs", team: "GB", position: "RB", bye: 5, notes: "", lastYearPPR: 14.1, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/gb.png" },
-        { rank: 23, tier: 4, name: "Ladd McConkey", team: "LAC", position: "WR", bye: 12, notes: "", lastYearPPR: 15.1, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/lac.png" },
-        { rank: 24, tier: 4, name: "Kyren Williams", team: "LAR", position: "RB", bye: 8, notes: "", lastYearPPR: 21.3, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/lar.png" },
+        { rank: 7, tier: 2, name: "Derrick Henry", team: "BAL", position: "RB", bye: 7, notes: "King Henry joins a high-powered Ravens offense. While age is a factor, he still led the league in attempts in 2024 and should see a massive workload, especially in the red zone.", lastYearPPR: 18.6, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/bal.png" },
+        { rank: 8, tier: 2, name: "Nico Collins", team: "HOU", position: "WR", bye: 6, notes: "Collins enjoyed a massive breakout season with C.J. Stroud, establishing himself as a true alpha WR1. His size and speed make him a nightmare matchup, and he's a top target in a rising offense.", lastYearPPR: 17.6, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/hou.png" },
+        { rank: 9, tier: 2, name: "Puka Nacua", team: "LAR", position: "WR", bye: 8, notes: "Nacua followed up his historic rookie campaign with another stellar season, proving he's no fluke. He's a reliable target for Matthew Stafford and a PPR machine.", lastYearPPR: 18.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/lar.png" },
+        { rank: 10, tier: 2, name: "Malik Nabers", team: "NYG", position: "WR", bye: 14, notes: "The explosive rookie lived up to the hype, immediately becoming the Giants' most dangerous offensive weapon. His big-play ability gives him a massive ceiling.", lastYearPPR: 18.2, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png" },
+        { rank: 11, tier: 2, name: "Brian Thomas Jr.", team: "JAC", position: "WR", bye: 8, notes: "Thomas Jr. emerged as a premier deep threat for the Jaguars. His touchdown upside makes him a valuable fantasy asset, especially in standard leagues.", lastYearPPR: 16.7, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/jax.png" },
+        { rank: 12, tier: 3, name: "Amon-Ra St. Brown", team: "DET", position: "WR", bye: 8, notes: "The Sun God is the model of consistency in PPR formats. He's Jared Goff's favorite target and one of the safest bets for 100+ catches.", lastYearPPR: 18.6, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/det.png" },
+        { rank: 13, tier: 3, name: "Christian McCaffrey", team: "SF", position: "RB", bye: 14, notes: "An injury-shortened 2024 is a concern, but when on the field, CMC is still the fantasy RB king. His dual-threat ability in the 49ers offense is unmatched.", lastYearPPR: 12.0, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/sf.png" },
+        { rank: 14, tier: 3, name: "Ashton Jeanty", team: "FA", position: "RB", bye: 0, notes: "One of the top running backs in the 2025 rookie class, Jeanty is a do-it-all back with great potential depending on his landing spot.", lastYearPPR: 0.0, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/FA.png" },
+        { rank: 15, tier: 3, name: "De'Von Achane", team: "MIA", position: "RB", bye: 12, notes: "Achane's world-class speed makes him a threat to score every time he touches the ball. He's a key part of the explosive Dolphins offense.", lastYearPPR: 17.3, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/mia.png" },
+        { rank: 16, tier: 3, name: "A.J. Brown", team: "PHI", position: "WR", bye: 9, notes: "Brown remains one of the most physically dominant receivers in the league. He's a top red-zone target for Jalen Hurts and a consistent WR1.", lastYearPPR: 16.7, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/phi.png" },
+        { rank: 17, tier: 3, name: "Jonathan Taylor", team: "IND", position: "RB", bye: 11, notes: "Taylor is the clear workhorse back for the Colts. With a healthy Anthony Richardson, the rushing lanes should be even wider in 2025.", lastYearPPR: 16.4, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/ind.png" },
+        { rank: 18, tier: 3, name: "Drake London", team: "ATL", position: "WR", bye: 5, notes: "London has the talent to be a top receiver. With Kirk Cousins at QB, he has the potential for a true breakout season if he can command a consistent target share.", lastYearPPR: 16.5, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/atl.png" },
+        { rank: 19, tier: 4, name: "Lamar Jackson", team: "BAL", position: "QB", bye: 7, notes: "The QB1 in 2024, Jackson's rushing floor is simply unmatched. He's a weekly fantasy superstar.", lastYearPPR: 25.3, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/bal.png" },
+        { rank: 20, tier: 4, name: "Josh Allen", team: "BUF", position: "QB", bye: 7, notes: "Allen's arm talent and goal-line rushing attempts make him a fantasy cheat code. He's a perennial top-3 fantasy QB.", lastYearPPR: 22.3, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/buf.png" },
+        { rank: 21, tier: 4, name: "Brock Bowers", team: "LV", position: "TE", bye: 8, notes: "Bowers had a fantastic rookie season, quickly becoming a reliable target. He's already in the elite tier of fantasy tight ends.", lastYearPPR: 15.5, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/lv.png" },
+        { rank: 22, tier: 4, name: "Josh Jacobs", team: "GB", position: "RB", bye: 5, notes: "Jacobs is the new lead back in Green Bay's potent offense. He should see plenty of volume and scoring opportunities.", lastYearPPR: 14.1, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/gb.png" },
+        { rank: 23, tier: 4, name: "Ladd McConkey", team: "LAC", position: "WR", bye: 12, notes: "McConkey's precise route-running made him a favorite of Justin Herbert. He's a high-floor PPR receiver.", lastYearPPR: 15.1, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/lac.png" },
+        { rank: 24, tier: 4, name: "Kyren Williams", team: "LAR", position: "RB", bye: 8, notes: "Williams was a volume king in 2024. As the Rams' workhorse, he's a solid RB1 with a high floor due to his heavy usage.", lastYearPPR: 21.3, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/lar.png" },
         { rank: 25, tier: 4, name: "Bucky Irving", team: "TB", position: "RB", bye: 9, notes: "", lastYearPPR: 0.0, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/tb.png" },
         { rank: 26, tier: 4, name: "Tee Higgins", team: "CIN", position: "WR", bye: 10, notes: "", lastYearPPR: 18.5, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/cin.png" },
         { rank: 27, tier: 4, name: "Terry McLaurin", team: "WAS", position: "WR", bye: 12, notes: "", lastYearPPR: 15.8, logoUrl: "https://a.espncdn.com/i/teamlogos/nfl/500/was.png" },
